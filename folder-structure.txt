@@ -1,0 +1,78 @@
+/project-root
+│
+├── /docs                # Documentation files
+│
+├── /infrastructure      # Infrastructure as code, e.g., Terraform, Kubernetes configs
+│
+├── /config              # Configuration files
+│
+├── /scripts             # Build, deployment, and utility scripts
+│
+├── /webui               # Web User Interface
+│   ├── /public          # Static assets (images, fonts, etc.)
+│   ├── /src             # Source code
+│   │   ├── /components  # React/Vue/Angular components
+│   │   ├── /pages       # Page components
+│   │   ├── /services    # API services and helpers
+│   │   ├── /hooks       # Custom hooks (for React) or similar
+│   │   ├── /styles      # CSS/Sass files
+│   │   └── /utils       # Utility functions
+│   ├── /tests           # Unit and integration tests
+│   └── package.json     # Project metadata and dependencies
+│
+├── /backend             # Backend code
+│   ├── /src
+│   │   ├── /controllers # Request handlers
+│   │   ├── /models      # Database models
+│   │   ├── /routes      # API routes
+│   │   ├── /services    # Business logic
+│   │   └── /utils       # Utility functions
+│   ├── /config          # Backend-specific configuration
+│   ├── /migrations      # Database migrations
+│   ├── /tests           # Unit and integration tests
+│   └── package.json     # Project metadata and dependencies
+│
+├── /mobile              # Mobile application code
+│   ├── /ios             # iOS-specific code
+│   ├── /android         # Android-specific code
+│   ├── /src
+│   │   ├── /components  # React Native components
+│   │   ├── /screens     # Screens or views
+│   │   ├── /services    # API services and helpers
+│   │   └── /utils       # Utility functions
+│   ├── /assets          # Images, fonts, etc.
+│   ├── /tests           # Unit and integration tests
+│   └── package.json     # Project metadata and dependencies
+│
+├── /tests               # End-to-end tests
+│
+├── /tools               # Development tools, linters, etc.
+│
+└── .gitignore           # Git ignore file
+
+
+
+
+
+
+// backend folder updated strcture
+
+
+/backend
+│   ├── /src
+│   │   ├── /controllers     # Request handlers
+│   │   ├── /middlewares     # Custom middleware functions
+│   │   ├── /models          # Database models
+│   │   │   ├── /mongodb     # MongoDB-specific models
+│   │   │   ├── /postgresql  # PostgreSQL-specific models
+│   │   ├── /routes          # API routes
+│   │   ├── /services        # Business logic
+│   │   └── /utils           # Utility functions
+│   ├── /config              # Backend-specific configuration
+│   ├── /db                  # Database connection and configuration
+│   │   ├── mongodb.js       # MongoDB connection setup
+│   │   ├── postgresql.js    # PostgreSQL connection setup
+│   ├── /migrations          # Database migrations
+│   ├── /tests               # Unit and integration tests
+│   └── package.json         # Project metadata and dependencies
+│   └── app.js               # Main application entry point
