@@ -17,13 +17,3 @@ exports.getUserById = (req, res) => {
     data: {}, // Replace with actual user data
   });
 };
-
-exports.createUser = (req, res) => {
-  const newUser = req.body;
-  // Logic to create a new user
-  res.status(201).json({
-    success: true,
-    message: "User created successfully",
-    data: newUser, // Replace with actual user creation logic
-  });
-};

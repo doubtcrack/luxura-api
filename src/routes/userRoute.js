@@ -13,7 +13,4 @@ router.get("/", getUsers);
 // GET a specific user by ID
 router.get("/:id", getUserById);
 
-// POST a new user
-router.post("/", createUser);
-
 module.exports = router;

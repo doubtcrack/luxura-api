@@ -1,85 +1,111 @@
-// controllers/productController.js
-
+const Product = require("../models/mongodb/productModel");
+const slugify = require("slugify");
 // Get all products
-exports.getProducts = async (req, res, next) => {
+const getProducts = async (req, res) => {
   try {
-    // Logic to retrieve all products from the database
-    const products = []; // Replace with actual data retrieval logic
-    res.status(200).json({
-      success: true,
-      message: "List of products",
-      data: products,
-    });
+    const products = await Product.find({});
+    res.status(200).json(products);
   } catch (error) {
-    next(error); // Passes errors to the global error handler
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
-// Get a specific product by ID
-exports.getProductById = async (req, res, next) => {
+// Get a product by ID
+const getProductById = async (req, res) => {
   try {
-    const productId = req.params.id;
-    // Logic to retrieve the product by ID
-    const product = {}; // Replace with actual data retrieval logic
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: `Product with ID ${productId} not found`,
-      });
-    }
-    res.status(200).json({
-      success: true,
-      message: `Details of product ${productId}`,
-      data: product,
-    });
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    res.status(200).json(product);
   } catch (error) {
-    next(error);
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
 // Create a new product
-exports.createProduct = async (req, res, next) => {
+const createProduct = async (req, res) => {
   try {
-    const newProductData = req.body;
-    // Logic to save the new product to the database
-    const newProduct = newProductData; // Replace with actual creation logic
-    res.status(201).json({
-      success: true,
-      message: "Product created successfully",
-      data: newProduct,
+    let {
+      title,
+      slug,
+      productLabels,
+      price,
+      discountedPrice,
+      description,
+      images,
+    } = req.body;
+
+    if (!slug) {
+      slug = slugify(title, { lower: true });
+    }
+
+    const newProduct = new Product({
+      title,
+      slug,
+      productLabels,
+      price,
+      discountedPrice,
+      description,
+      images,
     });
+
+    const savedProduct = await newProduct.save();
+    res.status(201).json(savedProduct);
   } catch (error) {
-    next(error);
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
 // Update an existing product
-exports.updateProduct = async (req, res, next) => {
+const updateProduct = async (req, res) => {
   try {
-    const productId = req.params.id;
-    const updateData = req.body;
-    // Logic to update the product in the database
-    const updatedProduct = updateData; // Replace with actual update logic
-    res.status(200).json({
-      success: true,
-      message: `Product ${productId} updated successfully`,
-      data: updatedProduct,
-    });
+    const {
+      title,
+      slug,
+      productLabels,
+      price,
+      discountedPrice,
+      description,
+      images,
+    } = req.body;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        slug,
+        productLabels,
+        price,
+        discountedPrice,
+        description,
+        images,
+      },
+      { new: true }
+    );
+
+    if (!updatedProduct)
+      return res.status(404).json({ message: "Product not found" });
+
+    res.status(200).json(updatedProduct);
   } catch (error) {
-    next(error);
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
 // Delete a product
-exports.deleteProduct = async (req, res, next) => {
+const deleteProduct = async (req, res) => {
   try {
-    const productId = req.params.id;
-    // Logic to delete the product from the database
-    res.status(200).json({
-      success: true,
-      message: `Product ${productId} deleted successfully`,
-    });
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
-    next(error);
+    res.status(500).json({ message: "Server error", error });
   }
+};
+
+module.exports = {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
 };
