@@ -24,26 +24,34 @@ const getProductById = async (req, res) => {
 // Create a new product
 const createProduct = async (req, res) => {
   try {
-    let {
-      title,
-      slug,
-      productLabels,
-      price,
-      discountedPrice,
-      description,
-      images,
-    } = req.body;
+    let { title, slug, productLabels, price, description, images } = req.body;
+
+    const missingFields = [];
+
+    if (!title) missingFields.push("title");
+    if (!productLabels) missingFields.push("productLabels");
+    if (price === undefined) missingFields.push("price");
+    if (!description) missingFields.push("description");
+    if (!images) missingFields.push("images");
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        error: "Missing required fields",
+        missing: missingFields,
+      });
+    }
 
     if (!slug) {
       slug = slugify(title, { lower: true });
     }
+
+    console.log(req);
 
     const newProduct = new Product({
       title,
       slug,
       productLabels,
       price,
-      discountedPrice,
       description,
       images,
     });
