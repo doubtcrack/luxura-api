@@ -7,7 +7,6 @@ const cookieParser = require("cookie-parser");
 const errorMiddleware = require("./src/middlewares/error");
 const routes = require("./src/routes");
 const authRoutes = require("./src/routes/authRoute");
-const cors = require("cors");
 
 const app = express();
 
@@ -18,21 +17,6 @@ app.use(helmet());
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-
-// const allowedOrigins = [
-//   process.env.CLIENT_URL1,
-//   process.env.CLIENT_URL2,
-//   process.env.CLIENT_URL3,
-//   process.env.CLIENT_URL4,
-// ];
-
-// const corsOptions = {
-//   origin: allowedOrigins,
-//   credentials: true,
-// };
-
-// CORS middleware
-app.use(cors(cors()));
 
 // Middleware to parse incoming request bodies
 app.use(express.json());
@@ -47,7 +31,7 @@ app.use(compression());
 // CORS setup
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "*", // Adjust allowed origins as needed
+    origin: "*", // Adjust allowed origins as needed
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
