@@ -29,14 +29,24 @@ app.use(cookieParser());
 app.use(compression());
 
 // CORS setup
-app.use(
-  cors({
-    origin: "*", // Adjust allowed origins as needed
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: "*", // Adjust allowed origins as needed
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true,
+//   })
+// );
 
+// app.use(cors());
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", [
+    "http://localhost:3000",
+    "https://luxurafootwear.pages.dev/",
+  ]); // Replace with your frontend URL
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
 // Mount routes
 app.use("/api/users", authRoutes);
 app.use("/api", routes);
