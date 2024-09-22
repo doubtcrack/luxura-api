@@ -25,15 +25,22 @@ const getProductById = async (req, res) => {
 // Create a new product
 const createProduct = async (req, res) => {
   try {
-    let { title, slug, productLabels, price, description } = req.body;
+    let { title, productLabels, price, discountedPrice, description, category } = req.body;
     const missingFields = [];
 
+    // Validate required fields
     if (!title) missingFields.push("title");
-    if (!productLabels) missingFields.push("productLabels");
     if (price === undefined) missingFields.push("price");
     if (!description) missingFields.push("description");
-    if (!req.files || req.files.length === 0) missingFields.push("images");
+    if (!category) missingFields.push("category");
+    // Images are optional now
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        error: "At least one product image is required",
+      });
+    }
 
+    // If there are missing required fields, send error response
     if (missingFields.length > 0) {
       return res.status(400).json({
         error: "Missing required fields",
@@ -41,54 +48,64 @@ const createProduct = async (req, res) => {
       });
     }
 
-    if (!slug) {
-      slug = slugify(title, { lower: true });
-    }
+    let slug = slugify(title, { lower: true });
+
     // Upload images to Cloudinary
     const uploadedImages = [];
-    for (const file of req.files) {
-      const uploadFromBuffer = (fileBuffer) => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { resource_type: 'image' }, // Additional options if needed
-            (error, result) => {
-              if (error) {
-                return reject(error); // Reject on error
-              }
-              resolve(result); // Resolve with the result
+    const uploadFromBuffer = (fileBuffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'luxura-products',  // Cloudinary folder
+            resource_type: 'image',   
+          },
+          (error, result) => {
+            if (error) {
+              return reject(error);
             }
-          );
-          stream.end(fileBuffer); // Send the buffer to the stream
-        });
-      };
-    
+            resolve(result); 
+          }
+        );
+        stream.end(fileBuffer); 
+      });
+    };
+
+    for (const file of req.files) {
       try {
         const result = await uploadFromBuffer(file.buffer);
-        console.log(result)
+        console.log(result);
         uploadedImages.push(result.secure_url);
       } catch (error) {
         console.error('Cloudinary upload error:', error);
+        return res.status(500).json({
+          error: "Failed to upload image to Cloudinary",
+          details: error.message,
+        });
       }
     }
 
-    console.log('uploadedImages ', uploadedImages);
-    
+    console.log(req.body, ' ', slug)
+    // Create new product
     const newProduct = new Product({
       title,
       slug,
-      productLabels,
+      productLabels: productLabels.split(',') || null,  // Convert CSV to array
       price,
+      discountedPrice: discountedPrice || null,  // Optional field
       description,
-      images: uploadedImages,
+      category,
+      images: uploadedImages,  // Uploaded images from Cloudinary
     });
 
     console.log(newProduct);
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error", error });
   }
 };
+
 
 // Update an existing product
 const updateProduct = async (req, res) => {
