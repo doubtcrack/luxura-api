@@ -1,3 +1,5 @@
+require('dotenv').config(); 
+
 const app = require("./app");
 const connectDatabase = require("./db/mongodb");
 // Handling uncaught Exception
@@ -12,6 +14,8 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
     path: "config/.env",
   });
 }
+
+console.log(process.env.NODE_ENV)
 
 // connect db
 connectDatabase();

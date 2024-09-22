@@ -6,6 +6,7 @@ const {
   updateProduct,
   deleteProduct,
 } = require("../controllers/productController");
+const multer = require("../utils/multer");
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.get("/", getProducts);
 router.get("/:id", getProductById);
 
 // POST a new product
-router.post("/", createProduct);
+router.post("/", multer.array("images", 10), createProduct);
 
 // PUT to update an existing product
 router.put("/:id", updateProduct);

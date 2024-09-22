@@ -1,4 +1,5 @@
 const Product = require("../models/mongodb/productModel");
+const cloudinary = require("../utils/cloudinary");
 const slugify = require("slugify");
 // Get all products
 const getProducts = async (req, res) => {
@@ -24,15 +25,14 @@ const getProductById = async (req, res) => {
 // Create a new product
 const createProduct = async (req, res) => {
   try {
-    let { title, slug, productLabels, price, description, images } = req.body;
-
+    let { title, slug, productLabels, price, description } = req.body;
     const missingFields = [];
 
     if (!title) missingFields.push("title");
     if (!productLabels) missingFields.push("productLabels");
     if (price === undefined) missingFields.push("price");
     if (!description) missingFields.push("description");
-    if (!images) missingFields.push("images");
+    if (!req.files || req.files.length === 0) missingFields.push("images");
 
     if (missingFields.length > 0) {
       return res.status(400).json({
@@ -44,18 +44,45 @@ const createProduct = async (req, res) => {
     if (!slug) {
       slug = slugify(title, { lower: true });
     }
+    // Upload images to Cloudinary
+    const uploadedImages = [];
+    for (const file of req.files) {
+      const uploadFromBuffer = (fileBuffer) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { resource_type: 'image' }, // Additional options if needed
+            (error, result) => {
+              if (error) {
+                return reject(error); // Reject on error
+              }
+              resolve(result); // Resolve with the result
+            }
+          );
+          stream.end(fileBuffer); // Send the buffer to the stream
+        });
+      };
+    
+      try {
+        const result = await uploadFromBuffer(file.buffer);
+        console.log(result)
+        uploadedImages.push(result.secure_url);
+      } catch (error) {
+        console.error('Cloudinary upload error:', error);
+      }
+    }
 
-    console.log(req);
-
+    console.log('uploadedImages ', uploadedImages);
+    
     const newProduct = new Product({
       title,
       slug,
       productLabels,
       price,
       description,
-      images,
+      images: uploadedImages,
     });
 
+    console.log(newProduct);
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
   } catch (error) {
